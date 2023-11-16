@@ -10,8 +10,6 @@ const addBtnElements = document.getElementsByClassName('product__add')
 const cartElement = document.querySelector('.cart__products')
 const imageElements = document.getElementsByClassName('product__image')
 
-let cartObj = {}
-
 // цикл по продуктам
 for (let p = 0; p < productElements.length; p++) {
     // событие на плюс
@@ -24,24 +22,30 @@ for (let p = 0; p < productElements.length; p++) {
         let q = parseInt(quantityElements[p].textContent)
         if (q > 1) {
             quantityElements[p].textContent = q - 1
-        }        
+        }
     })
 
     // событие на кнопку добавление
-    addBtnElements[p].addEventListener('click', () => {        
+    addBtnElements[p].addEventListener('click', () => {
         // сохраняем Id, он еще пригодится не раз
-        const productId = productElements[p].getAttribute('data-id')               
+        const productId = productElements[p].getAttribute('data-id')
 
-        // проверяем есть ли уже товар в корзине
-        if (cartObj[productId] != null) {                        
-            // получаем элемент товара из корзины
-            const cartProductElement = getCartProduct(productId)
+        // берем все товары в корзине в массив
+        const cartProducts = [...cartElement.querySelectorAll('.cart__product')]
+        
+        // получаем элемент нужного товара из корзины
+        const cartProductElement = cartProducts.find((el) => {
+            return el.getAttribute('data-id') === productId
+        })        
 
+        // проверяем, нашли ли товар в корзине
+        if (cartProductElement) {
+            
             // получаем кол-во
-            const cartProductCount = cartProductElement.querySelector('.cart__product-count')            
+            const cartProductCount = cartProductElement.querySelector('.cart__product-count')
             
             // записываем в элемент и в объект
-            cartProductCount.textContent = cartObj[productId] = cartObj[productId] + parseInt(quantityElements[p].textContent)            
+            cartProductCount.textContent = parseInt(cartProductCount.textContent) + parseInt(quantityElements[p].textContent)
         }
         else {
             // добавляем в корзину
@@ -50,23 +54,6 @@ for (let p = 0; p < productElements.length; p++) {
                     <img class="cart__product-image" src="${imageElements[p].getAttribute('src')}">
                     <div class="cart__product-count">${quantityElements[p].textContent}</div>
                 </div>`
-
-            // сохраняем в объект {id: qty}
-            cartObj[productId] = parseInt(quantityElements[p].textContent)
         }
-                
-        // console.log(cartObj)
     })
-}
-
-// получаем товар их корзины по Id
-function getCartProduct(id) {
-    const cartProducts = cartElement.querySelectorAll('.cart__product')
-    for (const i of cartProducts) {
-        if (i.getAttribute('data-id') === id) {
-            return i
-        }
-    }
-
-    return null
 }
